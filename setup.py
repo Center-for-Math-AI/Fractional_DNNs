@@ -6,8 +6,8 @@ setup(
     packages=find_packages(),
     url='https://github.com/Center-for-Math-AI/Fractional_DNNs.git',
     license='MIT',
-    author='Deepanshu Verma',
-    author_email='deepanshu.verma@emory.edu',
+    author='Harbir Antil and Deepanshu Verma',
+    author_email='hantil@gmu.edu',
     description='pytorch fDNN',
     install_requires=['torch', 'torchvision', 'matplotlib', 'numpy', 'pandas']
 )
