@@ -2,7 +2,7 @@
 Pytorch implementation of fractional-DNN and $`\tau`$-learning neural networks (ResNet and Fractional DNN). 
 If you are using this software, then the following citations must be cited
 
-
+```
 @software{Antil_fractional-DNN_2023,
 author = {Antil, Harbir and Verma, Deepanshu},
 month = may,
@@ -44,7 +44,7 @@ year = {2023}
 	urldate = {2022-05-18},
 	year = {2022},
 	bdsk-url-1 = {http://arxiv.org/abs/2204.08528}}
-
+```
 
 
 ## Installation
