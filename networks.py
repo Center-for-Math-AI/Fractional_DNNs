@@ -7,7 +7,7 @@ def antiderivTanh(x): # activation function aka the antiderivative of tanh
 
 
 class ResNN(nn.Module):
-    def __init__(self, din, m, dout, act = nn.Softplus(), nTh=2, tau_learn = True, h=1):
+    def __init__(self, din, m, dout, act = nn.Softplus(), nTh=2, tau_learn=True, h=1):
         """
         :param d:   int, dimension of space input (expect inputs to be d+1 for space-time)
         :param m:   int, hidden dimension
@@ -74,10 +74,11 @@ class fDNN(nn.Module):
         self.layers = nn.ModuleList([])
         self.layers.append(nn.Linear(din, m, bias=True))  # opening layer
         self.layers.append(nn.Linear(m, m, bias=True))  # resnet layers
+        self.tau_learn = tau_learn
         if tau_learn:
             self.taus = nn.Parameter(torch.rand(nTh-1, requires_grad=True))
         else:
-            self.taus = (((1.0 / (self.nTh-1)) ** gamm) * torch.exp(torch.lgamma(2 - gamm)))*torch.ones(nTh-1)
+            self.taus = (1.0 / (self.nTh-1))*torch.ones(nTh-1)
         for i in range(nTh - 2):
             self.layers.append(copy.deepcopy(self.layers[1]))
         self.layers.append(nn.Linear(m, dout))  # output layer
@@ -95,14 +96,20 @@ class fDNN(nn.Module):
             suma2 = 0.0 * x  # initialize sum for fractional derivative
             # print(f'{suma2.shape} at {j}')
             for k in range(j - 1):  # compute fractional deriavtives
-                suma2 = suma2 + ((j + 1 - k) ** (1 - self.gamm) - (j - k) ** (1 - self.gamm)) * (
-                            xall[:, :, k + 1] - xall[:, :, k])
-            x = x + suma2 + (self.taus[j-1] ** self.gamm) * torch.exp(torch.lgamma(2 - self.gamm)) \
-                * self.act(self.layers[j](x))
+                suma2 = suma2 + self.a_fdnn(k, j)*(xall[:, :, k + 1] - xall[:, :, k])
+            x = x - suma2 + (self.taus[j-1] ** self.gamm) * torch.lgamma(2 - self.gamm) * self.act(self.layers[j](x))
             xall = torch.cat((xall, x.unsqueeze(-1)), -1)
         x = self.layers[-1](x)
 
         return x
+
+    def a_fdnn(self, k, j):  # coeff for fdnn
+        if self.tau_learn:
+            coeff = (self.taus[j-1]**self.gamm)*(torch.sum(self.taus[k-1:j-1])**(1-self.gamm)
+                                                 - torch.sum(self.taus[k:j-1])**(1-self.gamm))/self.taus[k-1]
+            return coeff
+        else:
+            return (j + 1 - k) ** (1 - self.gamm) - (j - k) ** (1 - self.gamm)
 
 
 if __name__ == "__main__":
