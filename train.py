@@ -158,6 +158,7 @@ if __name__ == "__main__":
     time_meter = utils.AverageMeter()
     end = time.time()
 
+    running_loss = 0.0
     # training
     for epoch in range(args.epoch):
         # training here
@@ -166,7 +167,6 @@ if __name__ == "__main__":
         b = args.batch_size
         n_batch = n // b
         loss = torch.zeros(1)
-        running_loss = 0.0
 
         # shuffle
         idx = torch.randperm(n)
